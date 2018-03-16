@@ -5,10 +5,13 @@
 library(mcmcplots)
 library(R2jags)
 
-#setwd( "/Users/pedromonterroso/Documents/Trabalho/Publications/Papers/In prep/1.spatiotemporal interactions among Iberian carnivores/3.analyses/1.rcode/occ/fox-wildcat" )
-
-setwd( "F:/UM_analyses/Portugal/Occupancy" )
-
+# Check to see who's running the code
+# Set the path according to the user.
+if( Sys.info$user == "paul.lukacs" ){
+  setwd( "F:/UM_analyses/Portugal/Occupancy" )
+} else {
+  setwd( "/Users/pedromonterroso/Documents/Trabalho/Publications/Papers/In prep/1.spatiotemporal interactions among Iberian carnivores/3.analyses/1.rcode/occ/fox-wildcat" )
+}
 
 
 #EHw <- yfs[,4:33]
