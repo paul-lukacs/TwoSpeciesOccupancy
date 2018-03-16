@@ -34,7 +34,6 @@ model{
   }
   
   
-  
   # likelihood
   # process model
   
@@ -45,10 +44,11 @@ model{
     
     # observation model
     for(j in 1:nocc){
-      yA[i,j] ~ dbern(zA[i]*pA[i,j])
+      yA[i,j] ~ dbern( zA[i]*pA[i,j] )
       yB[i,j] ~ dbern( 
-                        zBa[i]* pB[i,j] + 
-                        zBA[i]* ( rBA[i,j]*yA[i,j] + rBa[i,j]*(1-yA[i,j]) )
+                        zBa[i] * pB[i,j] + 
+                        zBA[i] * ( rBA[i,j] * yA[i,j] + 
+                                   rBa[i,j] * (1-yA[i,j]) )
                       )
     }
   }
@@ -56,7 +56,7 @@ model{
   
   #fit <- sum(Presi[,])# Discrepancy for actual data set
   #fit.new <- sum(Presi.new[,]) 		# Discrepancy for replicate data set
-  
+  ZZBa <- sum(zBa[])
   # derived parameters
   phi <- psiA[1]*psiBA[1]/(psiA[1]*(psiA[1]*psiBA[1]+(1-psiA[1])*psiBa[1]))
   

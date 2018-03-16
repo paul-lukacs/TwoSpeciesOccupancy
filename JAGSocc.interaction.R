@@ -7,8 +7,8 @@ library(R2jags)
 
 # Check to see who's running the code
 # Set the path according to the user.
-if( Sys.info$user == "paul.lukacs" ){
-  setwd( "F:/UM_analyses/Portugal/Occupancy" )
+if( Sys.info()["user"] == "paul.lukacs" ){
+  setwd( "c:/Users/paul.lukacs/Documents/GitHub/TwoSpeciesOccupancy" )
 } else {
   setwd( "/Users/pedromonterroso/Documents/Trabalho/Publications/Papers/In prep/1.spatiotemporal interactions among Iberian carnivores/3.analyses/1.rcode/occ/fox-wildcat" )
 }
@@ -69,11 +69,12 @@ occ.parm <- c( "b0.psiA",
                "b0.pB",
                "b0.rBA",
                "b0.rBa",
-               "phi"
+               "phi",
+               "ZZBa"
 )
 
 # set up for MCMC run
-ni <- 10000
+ni <- 5000
 nt <- 1
 nb <- 200
 nc <- 3
