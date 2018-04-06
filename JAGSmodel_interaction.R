@@ -2,34 +2,38 @@
 # Occupancy JAGS code
 #
 
+## Definitions (Waddle et al. (2010) Ecol. Appl. 20:1467-1475)
+#
+# zB = occupancy state of dominant species
+# zA = occupancy state of subordinate species
+# psiB = Pr(zB =1)
+# psiAB = Pr(zA=1|zB=1)
+# psi Ab = Pr(zA=1|zB=0)
+# pB = Pr(yB=1|zB=1)
+# pAB = Pr(yA=1|zA=1,zB=1)
+# pAb = Pr(yA=1|zA=1,zB=0)
+
 model{
-  # missing data
-  #for(i in 1:nSites){
-  #rabbt.ts[i] ~ dnorm(0,1)
-  #}
-  
+
   # priors
-  b0.psiA ~ dnorm(0,0.001)T(-10,10)
-  b0.psiBA ~ dnorm(0,0.001)T(-10,10)
-  b0.psiBa ~ dnorm(0,0.001)T(-10,10)
-  b0.pA ~ dnorm(0,0.001)T(-10,10)
+  b0.psiB ~ dnorm(0,0.001)T(-10,10)
+  b0.psiAB ~ dnorm(0,0.001)T(-10,10)
+  b0.psiAb ~ dnorm(0,0.001)T(-10,10)
   b0.pB ~ dnorm(0,0.001)T(-10,10)
-  b0.rBA ~ dnorm(0,0.001)T(-10,10)
-  b0.rBa ~ dnorm(0,0.001)T(-10,10)
-  
+  b0.pAB ~ dnorm(0,0.001)T(-10,10)
+  b0.pAb ~ dnorm(0,0.001)T(-10,10)  
   
   
   # tranformations
   for(i in 1:nSites){
-    logit(psiA[i]) <- b0.psiA
-    logit(psiBA[i]) <- b0.psiBA
-    logit(psiBa[i]) <- b0.psiBa
+    logit(psiB[i]) <- b0.psiB
+    logit(psiAB[i]) <- b0.psiAB
+    logit(psiAb[i]) <- b0.psiAb
     
     for( j in 1:nocc ){
-      logit(pA[i,j]) <- b0.pA
       logit(pB[i,j]) <- b0.pB
-      logit(rBA[i,j]) <- b0.rBA
-      logit(rBa[i,j]) <- b0.rBa
+      logit(pAB[i,j]) <- b0.pAB
+      logit(pAb[i,j]) <- b0.pAb
     }
   }
   
@@ -38,17 +42,14 @@ model{
   # process model
   
   for (i in 1:nSites){
-    zA[i] ~ dbern( psiA[i] )
-    zBA[i] ~ dbern( zA[i]*psiBA[i] )
-    zBa[i] ~ dbern( (1-zA[i])*psiBa[i] )
+    zB[i] ~ dbern( psiB[i] )
+    zA[i] ~ dbern( zB[i] * psiAB[i] + (1-zB[i]) * psiAb[i] )
     
     # observation model
     for(j in 1:nocc){
-      yA[i,j] ~ dbern( zA[i]*pA[i,j] )
-      yB[i,j] ~ dbern( 
-                        zBa[i] * pB[i,j] + 
-                        zBA[i] * ( rBA[i,j] * yA[i,j] + 
-                                   rBa[i,j] * (1-yA[i,j]) )
+      yB[i,j] ~ dbern( zB[i] * pB[i,j] )
+      yA[i,j] ~ dbern( zA[i] * ( zB[i] * pAB[i,j] + 
+                              (1-zB[i]) * pAb[i,j] )
                       )
     }
   }
@@ -58,6 +59,6 @@ model{
   #fit.new <- sum(Presi.new[,]) 		# Discrepancy for replicate data set
   ZZBa <- sum(zBa[])
   # derived parameters
-  phi <- psiA[1]*psiBA[1]/(psiA[1]*(psiA[1]*psiBA[1]+(1-psiA[1])*psiBa[1]))
+  phi <- psiB[1]*psiAB[1]/(psiB[1]*(psiB[1]*psiAB[1]+(1-psiB[1])*psiAb[1]))
   
 }
