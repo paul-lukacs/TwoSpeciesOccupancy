@@ -10,27 +10,27 @@ library(R2jags)
 if( Sys.info()["user"] == "paul.lukacs" ){
   setwd( "c:/Users/paul.lukacs/Documents/GitHub/TwoSpeciesOccupancy" )
 } else {
-  setwd( "/Users/pedromonterroso/Documents/Trabalho/Publications/Papers/In prep/1.spatiotemporal interactions among Iberian carnivores/3.analyses/1.rcode/occ/fox-wildcat" )
+  setwd( ""/Users/pedromonterroso/Documents/Trabalho/Publications/Papers/In prep/1.spatiotemporal interactions among Iberian carnivores/3.analyses/1.rcode/occ/two.species"" )
 }
 
 
-#EHw <- yfs[,4:33]
-EHmf <- ymf[,3:32]
-EHf <- yvv[,3:32]
-nocc <- ncol(EHw)
-nSites <- nrow(EHw)
+# set detection histories and covariate data
+
+source("/Users/pedromonterroso/Documents/Trabalho/Publications/Papers/In prep/1.spatiotemporal interactions among Iberian carnivores/3.analyses/1.rcode/occ/single.species/data.nb.R")
+
+# data
+yD <- EHvv.nb # dominant species (red fox)
+ys1 <- EHgg.nb # subordinate species (common genet)
+ys2 <- EHmf.nb # subordinate species (stone marten)
 
 # random effect
 
-areaID <- as.numeric(yfs[,3])
+areaID.nb <- as.numeric(y.nb[,3])
 narea <- max(areaID)
 
 # detection covariates
 
-val <- detCovs.nb$v.nb[,3:32]
-trail <- detCovs.nb$trail.nb[,3]
-cam <- detCovs.nb$lr.nb[,3:32]
-
+#trail <- detCovs.nb$trail.nb[,3]
 
 # site covariates
 
@@ -40,37 +40,47 @@ cam <- detCovs.nb$lr.nb[,3:32]
 #rod.d <- siteCovs.nb$rdt.ha
 #rod.ts <- siteCovs.nb$rod.ts
 
-occ.data <- list( yA=EHf, 
-                  yB=EHmf,
+occ.data <- list( yD=yD, 
+                  ys1=ys1,
+                  ys2=ys2,
                   nSites=nSites,
-                  nocc=nocc
+                  nocc=nocc,
+                  areaID=areaID.nb,
+                  narea=narea
 )
 
 occ.inits <- function(){
   list(
-    zA = rep(1,nSites), #apply( EHf, 1, max, na.rm=T ),
-    zBA = rep(1,nSites), #apply( EHmf, 1, max, na.rm=T ), 
-    zBa = rep(0,nSites), #apply( EHmf, 1, max, na.rm=T ) -
-     # apply( EHf, 1, max, na.rm=T ) * apply( EHmf, 1, max, na.rm=T ), 
-    b0.psiA = runif(1, -3, 3),
-    b0.psiBA = runif(1, -3, 3),
-    b0.psiBa = runif(1, -3, 3),
-    b0.pA = runif(1, -3, 3),
-    b0.pB = runif(1, -3, 3),
-    b0.rBA = runif(1, -3, 3),
-    b0.rBa = runif(1, -3, 3)
+    zD = rep(1,nSites.nb), 
+    zs1 = rep(1,nSites.nb), 
+    zs2 = rep(1,nSites.nb), 
+    b0.psiD = runif(1, -3, 3),
+    b0.psis1D = runif(1, -3, 3),
+    b0.psis1 = runif(1, -3, 3),
+    b0.psis2D = runif(1, -3, 3),
+    b0.psis2 = runif(1, -3, 3),
+    b0.pD = runif(1, -3, 3),
+    b0.ps1D = runif(1, -3, 3),
+    b0.ps1 = runif(1, -3, 3),
+    b0.ps2D = runif(1, -3, 3),
+    b0.ps2 = runif(1, -3, 3),
+    sigma.psi = runif(1, 0, 0.1)
   )
 }
 
-occ.parm <- c( "b0.psiA",
-               "b0.psiBA",
-               "b0.psiBa",
-               "b0.pA",
-               "b0.pB",
-               "b0.rBA",
-               "b0.rBa",
-               "phi",
-               "ZZBa"
+occ.parm <- c( "b0.psiD",
+               "b0.psis1D",
+               "b0.psis1",
+               "b0.psis2D",
+               "b0.psis2",
+               "b0.pD",
+               "b0.ps1D",
+               "b0.ps1",
+               "b0.ps2D",
+               "b0.ps2",
+               "sigma.psi",
+               "phis1D",
+               "phis2D"
 )
 
 # set up for MCMC run
@@ -91,6 +101,7 @@ occ.fox.wildc <- jags( occ.data,
 )
 
 mcmcplot(occ.fox.wildc)
+
 # assess model fit
 plot(occ.result$BUGSoutput$sims.list$fit, occ.result$BUGSoutput$sims.list$fit.new, main = "", xlab = 
        "Discrepancy for actual data set", ylab = "Discrepancy for perfect 
