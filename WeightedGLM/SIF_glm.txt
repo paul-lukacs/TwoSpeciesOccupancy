@@ -1,0 +1,26 @@
+#
+# SIF weighted regression JAGS model
+#
+#
+
+model{
+  # PRIORS
+  sigma ~ dunif( 0, 100 )
+  tau <- 1/pow( sigma, 2 )
+  b0 ~ dunif( -10, 10 )
+  b1 ~ dunif( -10, 10 )
+  b2 ~ dunif( -10, 10 )
+  b3 ~ dunif( -10, 10 )
+  b4 ~ dunif( -10, 10 )
+  
+  
+  # LIKELIHOOD
+  for( i in 1:nobs ){
+    sif[i] ~ dnorm( mu[i], tau*weights[i] )
+    mu[i] <- b0 + 
+          b1*pianka[i] +
+          b2*pianka[i]*pianka[i]+ 
+          b3*bmass[i] + 
+          b4*bmass[i]*bmass[i]
+  }
+}
